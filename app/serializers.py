@@ -17,7 +17,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
-    projects= PostSerializer(many=True, read_only=True)
+    projects= ProjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = User

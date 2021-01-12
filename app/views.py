@@ -46,17 +46,26 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-class Profile(viewsets.ModelViewSet):
+class ProfileViewSet(viewsets.ModelViewSet):     
+    """
+    A simple ViewSet for listing or retrieving users.
+    """
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
 
-class User(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    A simple ViewSet for listing or retrieving users.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class Project(viewsets.ModelViewSet):
+class ProjectViewSet(viewsets.ModelViewSet):
+    """
+    A simple ViewSet for listing or retrieving projects.
+    """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
