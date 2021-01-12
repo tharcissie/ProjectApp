@@ -153,7 +153,7 @@ def project(request, pk):
 def search_project(request):
     if request.method == 'GET':
         project_name = request.GET.get("project_name")
-        results = Project.objects.filter(title__icontains=project_name).all()
+        results = Project.objects.filter(project_name__icontains=project_name).all()
         context = {
             'results': results,
         }
