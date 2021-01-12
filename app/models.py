@@ -6,7 +6,7 @@ import datetime as dt
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_picture = models.ImageField(upload_to='images/', default='default.png')
     bio = models.TextField(max_length=500, default="My Bio", blank=True)
     contact = models.EmailField(max_length=100, blank=True)
@@ -19,16 +19,11 @@ class Profile(models.Model):
         if created:
             Profile.objects.create(user=instance)
 
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, **kwargs):
-        instance.profile.save()
-
-
 class Project(models.Model):
     project_name = models.CharField(max_length=155)
     link = models.URLField(max_length=255)
     details = models.TextField(max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_project")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
     date = models.DateTimeField(auto_now_add=True, blank=True)
 
     def __str__(self):
@@ -65,7 +60,7 @@ class Rating(models.Model):
         (10, '10'),
     )
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='project', null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user_rating')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='rate')
     design = models.IntegerField(choices=rating, default=0, blank=True)
     usability = models.IntegerField(choices=rating, blank=True)
     content = models.IntegerField(choices=rating, blank=True)
@@ -83,5 +78,16 @@ class Rating(models.Model):
         rating = Rating.objects.filter(id=id).all()
         return rating
 
-    def __str__(self):
-        return self.project
+  
+
+    # def design_average(self):
+    #     design_average = sum(self.design) / len(self.design)
+    #     return design_average
+
+    # def usability_average(self):
+    #     usability_average = sum(self.design) / len(self.design)
+    #     return usability_average
+
+    # def content_average(self):
+    #     content_average = sum(self.design) / len(self.design)
+    #     return content_average

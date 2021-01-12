@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content%}
+
+
+
+  <div class="container mb-5 mt-5">
+
+
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card mt-5 p-5">
+          <h2 class="text-center">Sign up to <span style="font-family: 'Redressed', cursive;">Instagram</span> </h2>
+          <hr>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'form.html' %}
+            <hr>
+            <button class="btn btn-danger" type="submit">Sign up</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  {% endblock %}

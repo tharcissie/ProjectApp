@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .forms import UserCreationFormm, ProjectForm, UpdateUserForm, UpdateUserProfileForm, RatingsForm
+from .forms import UserCreationForm, ProjectForm, UpdateUserForm, UpdateUserProfileForm, RatingsForm
 import random
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, UserSerializer, ProjectSerializer
@@ -24,7 +24,7 @@ def home(request):
     try:
         projects = Project.objects.all()
         random_project = random.randint(0, len(projects)-1)
-        random_project = posts[random_project]
+        random_project = projects[random_project]
     except Project.DoesNotExist:
         projects = None
     return render(request, 'home.html', {'projects': projects, 'form': form, 'random_project': random_project})
@@ -72,17 +72,34 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 @login_required(login_url='login')
 def profile(request, username):
-    return render(request, 'profile.html')
-
-
-def user_profile(request, username):
-    user_prof = get_object_or_404(User, username=username)
-    if request.user == user_prof:
-        return redirect('profile', username=request.user.username)
+    projects = request.user.profile.projects.all()
+    if request.method == 'POST':
+        prof_form = UpdateUserProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if prof_form.is_valid():
+            prof_form.save()
+            return redirect(request.path_info)
+    else:
+        prof_form = UpdateUserProfileForm(instance=request.user.profile)
     context = {
-        'user_prof': user_prof,
+        'prof_form': prof_form,
+        'projects': projects,
+
     }
-    return render(request, 'userprofile.html', context)
+    return render(request, 'profile.html', context)
+
+
+
+# @login_required(login_url='login')
+# def user_profile(request, username):
+#     user_prof = get_object_or_404(User, username=username)
+#     if request.user == user_prof:
+#         return redirect('user_profile', username=request.user.username)
+#     user_projects = user_prof.profile.projects.all()
+#     context = {
+#         'user_prof': user_prof,
+#         'user_posts': user_posts,
+#     }
+#     return render(request, 'userprofile.html', context)
 
 
 @login_required(login_url='login')
