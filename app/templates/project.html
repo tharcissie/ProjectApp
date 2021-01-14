@@ -40,7 +40,7 @@
 
         <p class="card-text"><small class="text-muted"><strong>On__</strong>{{project.date|date}}</small></p>
         <div class="row justify-content-center">
-          <a href="{{ project.link }}" class="btn btn-small col-md-4 mr-4 ">View Project</a>
+          <a href="{{ project.link }}" class="btn btn-small col-md-4 mr-4" style="background-color: #9E0059;">View Project</a>
           <a href="{% url 'rate' project_id=project.id%}" class="btn btn-small col-md-4 p-2">Rate Project</a>
         </div>
       </div>
