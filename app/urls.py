@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import home,signup,profile, edit_profile, project, search_projects,rate_project
+from .views import home,signup,profile, edit_profile, project, search_projects
 # from rest_framework.routers import DefaultRouter
 
 # router = DefaultRouter()
@@ -19,5 +19,5 @@ urlpatterns = [
     path('profile/<username>/', edit_profile, name='edit_Profile'),
     path('project/<id>',project, name='project'),
     path('search/', search_projects, name='search'),
-    path('rate/<project_id>', rate_project, name='rate'),
+    #path('rate/<project_id>', rate_project, name='rate'),
 ]

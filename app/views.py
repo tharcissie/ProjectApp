@@ -127,15 +127,6 @@ def edit_profile(request, username):
 def project(request,id):
     project = Project.objects.get(id = id)
     rates = Rate.objects.order_by('-date')
-    context={"project":project,"rates":rates}
-    return render(request, 'project.html',context)
-
-
-
-@login_required(login_url='login')
-def rate_project(request,project_id):
-    proj = Project.project_by_id(id=project_id)
-    project = get_object_or_404(Project, pk=project_id)
     current_user = request.user
     if request.method == 'POST':
         form = RateForm(request.POST)
@@ -155,7 +146,35 @@ def rate_project(request,project_id):
             return HttpResponseRedirect(reverse('project', args=(project.id,)))
     else:
         form = RateForm()
-    return render(request, 'rates.html', {"user":current_user,"project":proj,"form":form})
+    context={"project":project,"rates":rates,"form":form}
+    return render(request, 'project.html',context)
+
+
+
+# @login_required(login_url='login')
+# def rate_project(request,project_id):
+#     proj = Project.project_by_id(id=project_id)
+#     project = get_object_or_404(Project, pk=project_id)
+#     current_user = request.user
+#     if request.method == 'POST':
+#         form = RateForm(request.POST)
+#         if form.is_valid():
+#             design = form.cleaned_data['design']
+#             usability = form.cleaned_data['usability']
+#             content = form.cleaned_data['content']
+#             rate = Rate()
+#             rate.project = project
+#             rate.user = current_user
+#             rate.design = design
+#             rate.usability = usability
+#             rate.content = content
+#             rate.average = (rate.design + rate.usability + rate.content)/3
+#             rate.save()
+#             # return redirect('index')
+#             return HttpResponseRedirect(reverse('project', args=(project.id,)))
+#     else:
+#         form = RateForm()
+#     return render(request, 'rates.html', {"user":current_user,"project":proj,"form":form})
 
 
 
