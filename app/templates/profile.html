@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content%}
+
+<div class="container" style="margin-top:8%">
+    <div class="content-section">
+        <div class="media">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">
+                        <img class="rounded-circle account-img" src="{{ user.profile.profile_picture.url }}" width="100%">
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <div class="media-body">
+                            <div class="account-heading"><span
+                                    class="mr-3 text-secondary username">{{ user.username }}</span>
+                                <a class="btn btn-sm btn-outline-secondary mr-3" data-toggle="modal"
+                                    data-target=".bd-example-modal-md"><strong>Edit Profile</strong></a>
+
+                            </div>
+                           
+                            <p class="text-secondary">{{ user.profile.bio }}</p>
+                            <p class="text-secondary">{{ user.profile.contact }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-md ">
+                <div class="modal-content">
+                    <form action="" method="post" novalidate enctype="multipart/form-data" class="mr-4 mt-4 ml-4 mb-4">
+                        {% csrf_token%}
+                        {{ prof_form|crispy}}
+                        <button type="submit" class="btn btn-primary btn-sm"> Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for project in projects %}
+
+    <p>{{ project.project_name }}</p>
+
+    {% endfor %}
+
+</div>
+
+
+{% endblock %}

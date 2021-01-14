@@ -1,33 +1,34 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Project, Profile, Rating
-from django.http import HttpResponseRedirect
+from .models import Project, Profile, Rate
+from django.http import HttpResponse, Http404,HttpResponseRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .forms import UserCreationForm, ProjectForm, UpdateUserForm, UpdateUserProfileForm, RatingsForm
-import random
+from app.forms import *
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, UserSerializer, ProjectSerializer
+from django.urls import reverse
 # Create your views here.
 
 
+
 def home(request):
+    profiles = Profile.objects.all()
+    rates = Rate.objects.all()
     if request.method == "POST":
-        form = ProjectForm(request.POST)
+        form = ProjectForm(request.POST or None, files=request.FILES)
         if form.is_valid():
             project = form.save(commit=False)
-            project.user = request.user
+            project.user = request.user.profile
             project.save()
     else:
         form = ProjectForm()
 
     try:
         projects = Project.objects.all()
-        random_project = random.randint(0, len(projects)-1)
-        random_project = projects[random_project]
     except Project.DoesNotExist:
         projects = None
-    return render(request, 'home.html', {'projects': projects, 'form': form, 'random_project': random_project})
+    return render(request, 'home.html', {'projects': projects, 'form': form, 'profiles':profiles, 'rates':rates})
 
 
 
@@ -46,28 +47,28 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-class ProfileViewSet(viewsets.ModelViewSet):     
-    """
-    A simple ViewSet for listing or retrieving users.
-    """
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
+# class ProfileViewSet(viewsets.ModelViewSet):     
+#     """
+#     A simple ViewSet for listing or retrieving users.
+#     """
+#     queryset = Profile.objects.all()
+#     serializer_class = ProfileSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    A simple ViewSet for listing or retrieving users.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class UserViewSet(viewsets.ModelViewSet):
+#     """
+#     A simple ViewSet for listing or retrieving users.
+#     """
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
-    """
-    A simple ViewSet for listing or retrieving projects.
-    """
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
+# class ProjectViewSet(viewsets.ModelViewSet):
+#     """
+#     A simple ViewSet for listing or retrieving projects.
+#     """
+#     queryset = Project.objects.all()
+#     serializer_class = ProjectSerializer
 
 
 @login_required(login_url='login')
@@ -93,7 +94,7 @@ def profile(request, username):
 # def user_profile(request, username):
 #     user_prof = get_object_or_404(User, username=username)
 #     if request.user == user_prof:
-#         return redirect('user_profile', username=request.user.username)
+#         return redirect('userprofile', username=request.user.username)
 #     user_projects = user_prof.profile.projects.all()
 #     context = {
 #         'user_prof': user_prof,
@@ -123,55 +124,53 @@ def edit_profile(request, username):
 
 
 @login_required(login_url='login')
-def project(request, pk):
-    project = Project.objects.get(pk=pk)
-    rating = Rating.objects.filter(user=request.user, project=project).first()
-    rating_status = None
-    if rating is None:
-        rating_status = False
-    else:
-        rating_status = True
+def project(request,id):
+    project = Project.objects.get(id = id)
+    rates = Rate.objects.order_by('-date')
+    context={"project":project,"rates":rates}
+    return render(request, 'project.html',context)
+
+
+
+@login_required(login_url='login')
+def rate_project(request,project_id):
+    proj = Project.project_by_id(id=project_id)
+    project = get_object_or_404(Project, pk=project_id)
+    current_user = request.user
     if request.method == 'POST':
-        form = RatingsForm(request.POST)
+        form = RateForm(request.POST)
         if form.is_valid():
-            rate = form.save(commit=False)
-            rate.user = request.user
+            design = form.cleaned_data['design']
+            usability = form.cleaned_data['usability']
+            content = form.cleaned_data['content']
+            rate = Rate()
             rate.project = project
+            rate.user = current_user
+            rate.design = design
+            rate.usability = usability
+            rate.content = content
+            rate.average = (rate.design + rate.usability + rate.content)/3
             rate.save()
-            project_rating = Rating.objects.filter(project=project)
-
-            design_rating = [design.design for design in project_rating]
-            design_average = sum(design_rating) / len(design_rating)
-
-            usability_rating = [usability.usability for usability in project_rating]
-            usability_average = sum(usability_rating) / len(usability_rating)
-
-            content_rating = [content.content for content in project_rating]
-            content_average = sum(content_rating) / len(content_rating)
-
-            score = (design_average + usability_average + content_average) / 3
-            rate.design_average = round(design_average, 2)
-            rate.usability_average = round(usability_average, 2)
-            rate.content_average = round(content_average, 2)
-            rate.score = round(score, 2)
-            rate.save()
-            return HttpResponseRedirect(request.path_info)
+            # return redirect('index')
+            return HttpResponseRedirect(reverse('project', args=(project.id,)))
     else:
-        form = RatingsForm()
-    context = {
-        'project': project,
-        'rating_form': form,
-        'rating_status': rating_status
-
-    }
-    return render(request, 'project.html', context)
+        form = RateForm()
+    return render(request, 'rates.html', {"user":current_user,"project":proj,"form":form})
 
 
-def search_project(request):
-    if request.method == 'GET':
-        project_name = request.GET.get("project_name")
-        results = Project.objects.filter(project_name__icontains=project_name).all()
-        context = {
-            'results': results,
-        }
-        return render(request, 'results.html', context)
+
+
+
+
+
+
+def search_projects(request):
+    if 'project' in request.GET and request.GET["project"]:
+        search = request.GET.get("project")
+        projects = Project.search_by_project_name(search)
+        message = f"{search}"
+        context = {"projects":projects, 'search':search}
+        return render(request, 'result.html',context)
+    else:
+        message = "You haven't searched for any term"
+        return render(request, 'result.html',{"message":message})

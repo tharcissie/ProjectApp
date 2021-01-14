@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'widget_tweaks',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [

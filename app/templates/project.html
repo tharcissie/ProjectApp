@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container" style="margin-top:8%">
+    <h5 class="mb-4 mt-4">{{ project.project_name }} by {{ project.user.user.username }}<span </i></span></h5>
+
+    <div class="card">
+        <div class="view overlay">
+
+            <a href="">
+                <div class="mask rgba-black-slight">
+                    <div class="container">
+                        <div class="row">
+
+                            <div class="col-md-3"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </a>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title"><strong>{{project.project_name|title}}</strong>
+                <a href="{{ project.link }}" style="float:right" class="btn btn-sm btn-info mr-4"> Visit </a></h5>
+            <p>by <span>{{ project.user.user.username|title }}</span>
+            </p>
+            <p>{{ project.details }}</p>
+            <hr>
+            <p class="card-text "><img src="{{project.user.profile_picture.url}}" width="50px" class="nav-img mr-2"
+                    alt="">
+                By {{project.user.user.username|title}} <span style="float:right">{{project.date|date}}</span>
+            </p>
+            <a href="{% url 'rate' project_id=project.id%}" class="btn btn-info btn-block" style="margin-top:4px;">Rate</a>
+        
+
+            {% if rates %}
+            <div class="col-md-1"></div>
+            <div class="col-md-4">
+              <p class="text-center">DESIGN</p>
+                  <!-- {{project.avg_design |floatformat}} -->
+                  <div class="main-container">
+              <div class="motion-container">
+                <div class="motion-item circle one"></div>
+                <div class="motion-item circle two"></div>
+                <!-- <div class="motion-item circle three"></div> -->
+                <!-- <div class="motion-item circle four"></div> -->
+                <h >{{project.avg_design |floatformat}}</h>
+                <div class="motion-item circle five"></div>
+                <!-- <div class="motion-item circle six"></div> -->
+                <div class="motion-item circle seven"></div>
+            
+              </div>
+            
+                  </div>
+                </div>
+            
+                  <div class="col-md-3">
+            <p class="text-center">USABILITY</p>
+                  <div class="main-container">
+              <div class="motion-container">
+                <div class="motion-item circle one"></div>
+                <div class="motion-item circle two"></div>
+                <!-- <div class="motion-item circle three"></div> -->
+                <div class="motion-item circle four"></div>
+                <h >{{project.avg_usability |floatformat}}</h>
+                <!-- <div class="motion-item circle five"></div> -->
+                <div class="motion-item circle six"></div>
+                <div class="motion-item circle seven"></div>
+            
+              </div><!-- End Motion Container -->
+            
+                  </div>
+                </div>
+            
+                  <!-- {{project.avg_content |floatformat}} <br> -->
+                  <div class="col-md-3">
+            <p class="text-center">CONTENT</p>
+                  <div class="main-container">
+              <div class="motion-container">
+                <div class="motion-item circle one"></div>
+                <div class="motion-item circle two"></div>
+                <!-- <div class="motion-item circle three"></div> -->
+                <!-- <div class="motion-item circle four"></div> -->
+                <h >  {{project.avg_content |floatformat}}</h>
+                <!-- <div class="motion-item circle five"></div> -->
+                <!-- <div class="motion-item circle six"></div> -->
+                <div class="motion-item circle seven"></div>
+
+            </div>
+              </div>
+              {%else%}
+              <h3 style="padding-left:400px;">This project has no ratings</h3>
+              {%endif%}
+            </div>
+
+
+
+            {% for rate in rates %}
+            <div class="row">
+            {% if project.id == rate.project.id %}
+            <div class="col-md-2"> <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3AeEIETd1WF-w7g5xkFdUfvcX0FK7tH5gV7qiidS1iW4hJFAzzw" style="height:40px;width:40px;border-radius:50%">
+               Rating by : <b> {{rate.user.username}}</b></div>
+          <div class="col-md-2"></div>
+        <div class="col-md-2">
+        <button type="button" class="btn btn-info btn-lg">{{rate.design}}</button>
+        </div>
+            <div class="col-md-2">
+            <button type="button" class="btn btn-primary btn-lg">
+              {{rate.usability}}
+        
+             </button>
+            </div>
+            <div class="col-md-2">
+            <button type="button" class="btn btn-success btn-lg">{{rate.content}}</button>
+            </div>
+            <div class="col-md-2">
+            <button type="button" class="btn btn-secondary btn-lg">{{rate.score}}</button>
+            </div>
+        
+        
+            {%endif%}
+        
+            </div>
+            <hr>
+            <br>
+            {% endfor  %}
+
+
+
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
