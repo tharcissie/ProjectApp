@@ -6,11 +6,41 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from app.forms import *
 from rest_framework import viewsets
-from .serializers import ProfileSerializer, UserSerializer, ProjectSerializer
+from .serializers import ProfileSerializer, ProjectSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.urls import reverse
 # Create your views here.
 
+class ProjectList(APIView):
+    def get(self, request, format=None):
+        all_projects = Project.objects.all()
+        serializers = ProjectSerializer(all_projects, many=True)
+        return Response(serializers.data)
 
+    def post(self, request, format=None):
+        serializers = ProjectSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileList(APIView):
+    def get(self, request, format=None):
+        all_users = Profile.objects.all()
+        serializers = ProfileSerializer(all_users, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, format=None):
+        serializers = ProfileSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    
 
 def home(request):
     profiles = Profile.objects.all()
@@ -81,9 +111,23 @@ def profile(request, username):
             return redirect(request.path_info)
     else:
         prof_form = UpdateUserProfileForm(instance=request.user.profile)
+    if request.method == "POST":
+        form = ProjectForm(request.POST or None, files=request.FILES)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user.profile
+            project.save()
+    else:
+        form = ProjectForm()
+
+    try:
+        projects = Project.objects.all()
+    except Project.DoesNotExist:
+        projects = None
     context = {
         'prof_form': prof_form,
         'projects': projects,
+        'form':form,
 
     }
     return render(request, 'profile.html', context)
