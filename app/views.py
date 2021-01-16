@@ -120,10 +120,6 @@ def profile(request, username):
     else:
         form = ProjectForm()
 
-    try:
-        projects = Project.objects.all()
-    except Project.DoesNotExist:
-        projects = None
     context = {
         'prof_form': prof_form,
         'projects': projects,

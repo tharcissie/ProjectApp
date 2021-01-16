@@ -8,7 +8,7 @@ import numpy as np
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    profile_picture = models.ImageField(upload_to='images/', default='default.png')
+    profile_picture = models.ImageField(upload_to='images/', default='default.jpg')
     bio = models.TextField(max_length=500, default="My Bio", blank=True)
     contact = models.EmailField(max_length=100, blank=True)
 
